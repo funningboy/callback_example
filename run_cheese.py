@@ -1,69 +1,45 @@
-import cheese
-import threading
+# utf8
 
-async = []
+from pydisplay import *
+from pyasync import *
+from pycheese import *
+import time
 
-class PyCheese(threading.Thread):
-    """ as Python GIL for C callback """
+async = PyAsync()
 
-    def __init__(self):
-        super(PyCheese, self).__init__()
-        self._count = 0
-        #self._typs  = {
-        #        'NORMALCB' : cheese.find(self.on_callback),
-        #        'PYTOHNCB' : cheese.find_py()
-        #        }
-        #self._typ = 'NORMALCB'
+# thread queue
+th_q = {
+        'PYCHEESE' : PyCheese(async=async),
+        'PYDISPLAY': PyDisplay(async=async),
+        }
 
-    def run(self):
-        """ register callback(report_cheese) to c """
-        #self._typs[self._typ]
-        cheese.find(self.on_callback)
-
-    def on_callback(self, name):
-        global async
-        async.append(name)
-        self._count += 1
-
-    def on_callback_py(self, name):
-        global async
-        async.append(name)
-        self._count += 1
-
-    def on_stop(self):
-        cheese.on_stop()
-
-    def on_restart(self):
-        pass
+def wap_on_callback_py(name):
+    """ as a wap interface for py callback """
+    th_q['PYCHEESE'].on_callback_py(name)
 
 
-class PyDisplay(threading.Thread):
-    """ as Python GIL for py proc """
+def main():
+    """ doctest """
 
-    def __init__(self):
-        super(PyDisplay, self).__init__()
+    [th_i.setDaemon(True) for th_i in th_q.values()]
 
-    def run(self):
-        """  """
-        global async
-        while (async):
-            print "%s" %(async.pop())
+    # spawn all threads
+    [th_i.start() for th_i in th_q.values()]
 
-    def on_stop(self):
-        pass
+    for i in xrange(2):
+        print "run %d" %(i)
+        time.sleep(1)
 
-    def on_restart(self):
-        pass
+        # stop thread
+        [th_i.on_stop() for th_i in th_q.values()]
+        time.sleep(1)
 
-th_0 = PyCheese()
-th_1 = PyDisplay()
-th_0.setDaemon(True)
-th_1.setDaemon(True)
-th_0.start()
-th_1.start()
-while th_0._count < 3:
-    pass
-th_0.on_stop()
-th_1.on_stop()
-th_0.join()
-th_1.join()
+        # wake up thread
+        if i < 1:
+            [th_i.on_restart() for th_i in th_q.values()]
+
+    # join all threads
+    [th_i.join() for th_i in th_q.values()]
+
+if __name__ == '__main__':
+    main()

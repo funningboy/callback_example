@@ -11,6 +11,7 @@ static char *cheeses[] = {
 };
 
 int end = 0;
+static PyThreadState *threadState;
 
 /* callback as void* */
 void find_cheeses(cheesefunc user_func, void *user_data) {
@@ -25,24 +26,46 @@ void find_cheeses(cheesefunc user_func, void *user_data) {
 
 /* callback as python callfunc */
 void find_cheeses_py() {
-//  PyObject *mod, *func, *rst;
-//  mod PyEval_ini
-//  func =
-//  rst =
-//  Py_Initialize();
-//  mod = PyImport_ImportModule("run_cheese");
-//  assert(mod!=NULL && "import run_cheese error");
-//  PyObject *c_api_object = PyObject_GetAttrString(module, "_C_API");
-//  arglist = Py_BuildValue("(i)", arg);
-//  result = PyEval_CallObject(my_callback, arglist);
-//  Py_BuildValue("i", );
-//
-//  while (!end) {
-//    char** p = cheeses;
-//    while (*p) {
-//
-//      ++p;
-//    }
-//  }
-//
+  PyObject *mod, *func, *val;
+  void* rst;
+
+  PySys_SetPath(".");
+
+  // impoty run_cheese module
+  mod = PyImport_ImportModule("run_cheese");
+  assert(mod != NULL && "import run_cheese error");
+
+  // Release the global interpreter lock
+  threadState = PyEval_SaveThread();
+
+  while (!end) {
+    char** p = cheeses;
+
+    while (*p) {
+
+      // Acquire the global interpreter lock
+      PyEval_RestoreThread(threadState);
+
+      func = PyObject_GetAttrString(mod, "wap_on_callback_py");
+      assert(func != NULL && "run_cheese.wap_on_callback_py error");
+
+      val = Py_BuildValue("(s)", *p);
+      rst = PyEval_CallObject(func, val);
+      assert(rst != NULL && "run_cheese.wap_on_callback_py error");
+
+      Py_XINCREF(mod);
+      Py_XINCREF(func);
+
+      ++p;
+      // Release the global interpreter lock
+      threadState = PyEval_SaveThread();
+    }
+  }
+
+  Py_XDECREF(mod);
+  Py_XDECREF(func);
+  Py_XDECREF(val);
+
+  // Release the global interpreter lock
+  PyEval_RestoreThread(threadState);
 }
