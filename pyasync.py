@@ -1,16 +1,18 @@
 
+import threading
 
-class PyAsync(object):
+class PyAsync(threading.Thread):
     """ as Async fifo """
 
-    def __init__(self, deep=100):
-        self._deep  = deep
+    def __init__(self, lock):
+        super(PyAsync, self).__init__()
+        self._lock  = lock
         self._queue = []
         self._stop  = 0
 
     @property
     def deep(self):
-        return self._deep
+        pass
 
     @property
     def queue(self):
@@ -18,14 +20,30 @@ class PyAsync(object):
 
     def push(self, frame):
         if not self._stop:
-            self._queue.append(frame)
+            try:
+                self._lock.acquire()
+                self._queue.append(frame)
+            finally:
+                self._lock.release()
 
     def pop(self):
+        frame = None
         if not self._stop:
-            return self._queue.pop()
+            try:
+                self._lock.acquire()
+                frame = self._queue.pop() if len(self._queue) > 0 else None
+            finally:
+                self._lock.release()
+            return frame
 
     def is_work(self):
-        return len(self._queue) > 0
+        rst = False
+        try:
+            self._lock.acquire()
+            rst = len(self._queue) > 0
+        finally:
+            self._lock.release()
+        return rst
 
     def on_stop(self):
         self._stop = 1
@@ -33,4 +51,10 @@ class PyAsync(object):
     def on_restart(self):
         self._stop = 0
 
+    def on_clear(self):
+        try:
+            self._lock.acquire()
+            self._queue = []
+        finally:
+            self._lock.release()
 

@@ -3,15 +3,19 @@ import threading
 from pyasync import *
 
 class PyCheese(threading.Thread):
-    """ as Python GIL for C callback """
+    """ as Python GIL for C callback,
+    NORMALCB : it's a normal callback method via void* ptr return with no py gil
+    PYTOHNCB : it's a python callback method via python c api with py gil
+    """
 
-    def __init__(self, typ='PYTOHNCB', async=None):
+    def __init__(self, lock, typ='NORMALCB', async=None):
         super(PyCheese, self).__init__()
         assert(isinstance(async, PyAsync))
         assert(typ in ['NORMALCB', 'PYTOHNCB'])
+        self._lock  = lock
         self._typ   = typ
         self._async = async
-
+        self._debug = 1
         self._typs  = {
                 'NORMALCB' : {
                     'handler' : cheese.find,
@@ -36,6 +40,8 @@ class PyCheese(threading.Thread):
     def on_callback(self, name):
         """ as normal callback """
         try:
+            if self._debug:
+                print "on_callback : %s" %(name)
             self._async.push(name)
         except IOError:
             raise "NORMALCB Error"
@@ -43,7 +49,8 @@ class PyCheese(threading.Thread):
     def on_callback_py(self, name):
         """ as python c api callback """
         try:
-            print "%s" %(name)
+            if self._debug:
+                print "on_callback_py : %s" %(name)
             self._async.push(name)
         except IOError:
             raise "PYTOHNCB Error"
@@ -59,5 +66,4 @@ class PyCheese(threading.Thread):
             cheese.on_restart()
         except IOError:
             raise "on_restart Error"
-
 

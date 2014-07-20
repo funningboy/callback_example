@@ -3,22 +3,21 @@
 {% if session.logged_in %}
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 <script src="{{ url_for('static', filename='scripts/canvas-to-blob.min.js') }}" type="text/javascript"></script>
-<form name="img_proc_form" id="img_proc_form" action="{{ url_for('listen_job') }}" method=post>
-  <select name='img_proc' id='img_proc'>
-    <option value='DetectEdge'>DetectEdge</option>
-    <option value='DetectCircle'>DetectCircle</option>
-    <option value='DetectFace'>DetectFace</option>
+<form name="cb_proc_form" id="cb_proc_form" action="{{ url_for('listen_job') }}" method=post>
+  <select name='cb_proc' id='cb_proc'>
+    <option value='StartCallBack'>StartCallBack</option>
+    <option value='StopCallBack'>StopCallBack</option>
     <input type=submit value=switch>
   </select>
 </form>
+<ul class=entries>
+  {% for entry in entries %}
+  <li><h2>{{ entry.name }}</h2>
+  {% else %}
+  <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+</ul>
 {% block content %}
-<div style="visibility: hidden;  width:0; height:0;">
-  <canvas id="canvas" width="320" height="240"></canvas>
-</div>
-<div>
-  <video id="live" width="320" height="240" autoplay style="display: inline;"></video>
-  <img id="cam" src="" width="320" height="240"></img>
-</div>
 {% endblock %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='scripts/main.js') }}" type="text/javascript"></script>
