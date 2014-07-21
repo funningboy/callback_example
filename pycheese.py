@@ -12,7 +12,6 @@ class PyCheese(threading.Thread):
 
     def __init__(self, lock, typ='NORMALCB', async=None):
         threading.Thread.__init__(self)
-        assert(isinstance(async, PyAsync))
         assert(typ in ['NORMALCB', 'PYTOHNCB'])
         self._lock  = lock
         self._typ   = typ
@@ -49,15 +48,15 @@ class PyCheese(threading.Thread):
         except IOError:
             raise "NORMALCB Error"
 
-    def on_callback_py(self, name, wait=0.1):
-        """ as python c api callback """
-        try:
-            if self._debug:
-                print "on_callback_py : %s" %(name)
-            self._async.push(name)
-            time.sleep(wait)
-        except IOError:
-            raise "PYTOHNCB Error"
+#    def on_callback_py(self, name, wait=0.1):
+#        """ as python c api callback """
+#        try:
+#            if self._debug:
+#                print "on_callback_py : %s" %(name)
+#            self._async.push(name)
+#            time.sleep(wait)
+#        except IOError:
+#            raise "PYTOHNCB Error"
 
     def on_stop(self, wait=0):
         """ stop """

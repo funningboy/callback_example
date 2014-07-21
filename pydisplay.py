@@ -12,7 +12,6 @@ class PyDisplay(threading.Thread):
 
     def __init__(self, lock, async=None):
         threading.Thread.__init__(self)
-        assert(isinstance(async, PyAsync))
         self._lock  = lock
         self._async = async
         self._stop  = 0
