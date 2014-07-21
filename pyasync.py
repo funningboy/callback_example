@@ -5,20 +5,18 @@ class PyAsync(threading.Thread):
     """ as Async fifo """
 
     def __init__(self, lock):
-        super(PyAsync, self).__init__()
+        threading.Thread.__init__(self)
         self._lock  = lock
         self._queue = []
         self._stop  = 0
 
     @property
-    def deep(self):
-        pass
-
-    @property
     def queue(self):
+        """ mutex queue """
         return self._queue
 
     def push(self, frame):
+        """ mutex push """
         if not self._stop:
             try:
                 self._lock.acquire()
@@ -27,16 +25,18 @@ class PyAsync(threading.Thread):
                 self._lock.release()
 
     def pop(self):
+        """ mutex pop """
         frame = None
         if not self._stop:
             try:
                 self._lock.acquire()
-                frame = self._queue.pop() if len(self._queue) > 0 else None
+                frame = self._queue.pop(0) if len(self._queue) > 0 else None
             finally:
                 self._lock.release()
             return frame
 
     def is_work(self):
+        """ mutex is_work """
         rst = False
         try:
             self._lock.acquire()
@@ -46,12 +46,16 @@ class PyAsync(threading.Thread):
         return rst
 
     def on_stop(self):
+        """ mutex stop """
         self._stop = 1
+        self.on_clear()
 
     def on_restart(self):
+        """ mutex restart """
         self._stop = 0
 
     def on_clear(self):
+        """ mutex clear """
         try:
             self._lock.acquire()
             self._queue = []

@@ -5,7 +5,7 @@ cdef extern from "cheesefinder.h":
     ctypedef void (*cheesefunc)(char *name, void *user_data)
     void find_cheeses(cheesefunc user_func, void *user_data) nogil
     void find_cheeses_py() nogil
-    extern int end
+    int end
 
 def find(f):
     with nogil:

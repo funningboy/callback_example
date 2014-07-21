@@ -6,10 +6,13 @@ import threading
 import time
 
 lock = threading.Lock()
-pyasync = PyAsync(lock=lock, deep=100)
+pyasync = PyAsync(lock=lock)
 th_q = {
+    # callback handler for c to python
     'PYCHEESE'  : PyCheese(lock=lock, typ='NORMALCB', async=pyasync),
+    # display handler for storing/dumping callback info
     'PYDISPLAY' : PyDisplay(lock=lock, async=pyasync),
+    # as async queue
     'PYASYNC'   : pyasync,
     }
 
@@ -28,22 +31,22 @@ def main():
     [th_i.start() for th_i in th_q.values()]
 
     for i in xrange(2):
-        print "run %d" %(i)
+        print "run sequence %d" %(i)
         time.sleep(3)
 
-        # stop thread
+        # stop all threads
         [th_i.on_stop() for th_i in th_q.values()]
-        th_q['PYASYNC'].on_clear()
         rst = th_q['PYDISPLAY'].on_query()
-        print len(rst)
-        time.sleep(1)
+        print "found %d items for callback collected" %(len(rst))
+        time.sleep(0.1)
 
-        # wake up thread
-        if i < 1:
-            [th_i.on_restart() for th_i in th_q.values()]
+        # wake up all threads
+        [th_i.on_restart() for th_i in th_q.values()]
+        time.sleep(0.1)
 
     # join all threads
-    [th_i.join() for th_i in th_q.values()]
+    [th_i.join(timeout=0.5) for th_i in th_q.values()]
+    th_q['PYDISPLAY'].on_close()
 
 if __name__ == '__main__':
     main()

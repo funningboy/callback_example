@@ -10,17 +10,16 @@ static char *cheeses[] = {
   0
 };
 
-int end = 0;
 static PyThreadState *threadState;
 
 /* callback as void* */
 void find_cheeses(cheesefunc user_func, void *user_data) {
    while (!end) {
-    char **p = cheeses;
-    while (*p) {
-      user_func(*p, user_data);
-      ++p;
-    }
+        char **p = cheeses;
+        while (*p) {
+          user_func(*p, user_data);
+          ++p;
+        }
   }
 }
 
