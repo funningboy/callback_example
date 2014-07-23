@@ -1,5 +1,4 @@
 
-from pyasync import *
 from pyerror import *
 
 import threading
@@ -10,15 +9,14 @@ import time
 class PyDisplay(threading.Thread):
     """ as Python GIL for py proc """
 
-    def __init__(self, lock, async=None):
+    def __init__(self, queue=None, db='example.db'):
         threading.Thread.__init__(self)
-        self._lock  = lock
-        self._async = async
+        self._queue = queue
         self._stop  = 0
         self._debug = 0
-        if os.path.exists('example.db'):
-            os.remove('example.db')
-        self._conn = sqlite3.connect('example.db', check_same_thread=False)
+        if os.path.exists(db):
+            os.remove(db)
+        self._conn = sqlite3.connect(db, check_same_thread=False)
         self._exc  = self._conn.cursor()
         self._exc.execute('CREATE TABLE test \
                              (name text)')
@@ -28,10 +26,10 @@ class PyDisplay(threading.Thread):
         """ do as thread run """
         try:
             while True:
-                if not self._async.is_work():
+                if not self._queue.is_work():
                     time.sleep(wait+0.5)
                     continue
-                frame = self._async.pop()
+                frame = self._queue.pop()
                 if self._debug:
                     print "on_display %s" %(frame)
                 self._exc.execute("INSERT INTO test VALUES \
@@ -39,7 +37,7 @@ class PyDisplay(threading.Thread):
                 self._conn.commit()
                 time.sleep(wait)
         except PyError:
-            raise "PyDisplay handler Error"
+            raise "PyDisplay run Error"
 
     def on_stop(self, wait=0):
         """ stop thread """
@@ -71,4 +69,7 @@ class PyDisplay(threading.Thread):
 
     def on_close(self):
         """ close db """
-        self._conn.close()
+        try:
+            self._conn.close()
+        except PyError:
+            raise "on_close Error"

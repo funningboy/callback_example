@@ -1,60 +1,64 @@
 
-from pydisplay import *
-from pyasync import *
-from pycheese import *
-import threading
+from pydisplay import PyDisplay
+from pythread import PyThread
+from pyqueue  import pyqueue
+import cycheese
+import pycheese
+import pycallback
 import time
 
-ASYNC = 'QUEUE'
+#@profile decorator
+def demo_callback(cb_typ='CYTHONCB', wait=2, rerun=3):
+    """ demo callback as python or cython """
+    cbs = {
+        'CYTHONCB' : PyThread(cimport=cycheese, target=cycheese.find, args=(pycallback.wap_on_callback,)),
+        'PYTOHNCB' : PyThread(cimport=pycheese, target=pycheese.find, args=())
+    }
+    post = {
+        'PYDISPLAY': PyDisplay(pyqueue)
+    }
 
-lock = threading.Lock()
-pyasync = PyQueue() if ASYNC == 'QUEUE' else PyAsync(lock=lock)
-th_q = {
-    # callback handler for c to python
-    'PYCHEESE'  : PyCheese(lock=lock, typ='PYTOHNCB', async=pyasync),
-    # display handler for storing/dumping callback info
-    'PYDISPLAY' : PyDisplay(lock=lock, async=pyasync),
-    # async queue via threading list
-    'PYASYNC'   : None if ASYNC == 'QUEUE' else pyasync,
-}
+    def run():
+        th_q = [post['PYDISPLAY'], cbs[cb_typ]]
+        [th.setDaemon(True) for th in th_q]
+        [th.start()         for th in th_q]
 
+        for i in range(rerun):
+            time.sleep(wait)
+            [th.on_stop() for th in th_q]
+            print "run %d found %d callback items" %(i, len(post['PYDISPLAY'].on_query()))
+            [th.on_restart() for th in th_q]
 
-def wap_on_callback_py(name, debug=1, wait=0.1):
-    """ as a wap interface for py callback """
+        [th.join(0.5) for th in th_q]
+
     try:
-        if debug:
-            print "on_callback_py : %s" %(name)
-        async.push(name)
-        #?????
-    except IOError:
-        raise "PYTOHNCB Error"
+        run()
+    except:
+        raise "demo_callback error"
 
+#@
+def demo_parallel_loop(jb_typ='CYNOPARALLEL', n=10, rerun=3):
+    """ demo parallel via cython parallel or not """
+
+    jobs = {
+        'CYNOPARALLEL' : cycheese.cysumpar_no_parallel(n),
+        'CYONPARALLEL' : cycheese.cysumpar_on_parallel(n),
+#        'PYNOPARALLEL' : pysumpar.pysumpar_no_parallel(n),
+#        'PYONPARALLEL' : pysumpar.pysumpar_on_parallel(n)
+        }
+
+    def run():
+        print "accumulate sum is %d" %(jobs[jb_typ])
+
+    try:
+        run()
+    except:
+        raise "demo_parallel_loop error"
 
 def main():
     """ doctest """
-    global th_q
-
-    # spawn all threads
-    [th_i.setDaemon(True) for th_i in th_q.values() if th_i != None]
-    [th_i.start() for th_i in th_q.values() if th_i != None]
-
-    for i in xrange(2):
-        print "run sequence %d" %(i)
-        time.sleep(3)
-
-        # stop all threads
-        [th_i.on_stop() for th_i in th_q.values() if th_i != None]
-        rst = th_q['PYDISPLAY'].on_query()
-        print "found %d items for callback collected" %(len(rst))
-        time.sleep(0.1)
-
-        # wake up all threads
-        [th_i.on_restart() for th_i in th_q.values() if th_i != None]
-        time.sleep(0.1)
-
-    # join all threads
-    [th_i.join(timeout=0.5) for th_i in th_q.values() if th_i != None]
-    th_q['PYDISPLAY'].on_close()
+    demo_callback()
+    demo_parallel_loop()
 
 if __name__ == '__main__':
     main()

@@ -3,8 +3,9 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 
 setup(
-  name = 'callback',
+  name = 'cycallback',
   ext_modules=cythonize([
-    Extension("cheese", ["cheese.pyx", "cheesefinder.c"]),
+    Extension("cycheese",
+        sources = ["cycheese.pyx", "cycheesefinder.c"]),
     ]),
 )
