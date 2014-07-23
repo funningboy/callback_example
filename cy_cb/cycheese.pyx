@@ -9,9 +9,12 @@ cdef extern from "cycheesefinder.h":
 
 cimport cython
 from cython.parallel import prange
+import numpy as np
+import subprocess
+import multiprocessing
 
 #---------------------
-# callback block
+# demo callback block
 #---------------------
 def find(f):
     with nogil:
@@ -30,7 +33,7 @@ def on_restart():
     end = 0
 
 #----------------------
-# parallel loop block
+# demo parallel loop block
 #----------------------
 @cython.nonecheck(False)
 @cython.boundscheck(False)
@@ -38,6 +41,7 @@ def on_restart():
 @cython.cdivision(False)
 @cython.profile(True)
 cpdef cysumpar_no_parallel(int n):
+    """ as cython parallel loop off """
     cdef int tot=0
     cdef int* a = dynamic_list(n)
     for i in range(n):
@@ -50,7 +54,7 @@ cpdef cysumpar_no_parallel(int n):
 @cython.cdivision(False)
 @cython.profile(True)
 cpdef cysumpar_on_parallel(int n):
-    """ as cython parallel loop """
+    """ as cython parallel loop on """
     cdef int tot=0
     cdef int* a = dynamic_list(n)
     cdef int i
@@ -58,7 +62,36 @@ cpdef cysumpar_on_parallel(int n):
         tot += a[i]
     return tot
 
+
+def pysumpar_no_parallel(n):
+    """ as python parallel loop off """
+    tot = 0
+    cdef int* a = dynamic_list(int(n))
+    for i in range(int(n)):
+        tot += a[i]
+    return tot
+
+
+def pysumpar_on_parallel(n):
+    """ as python parallel loop on """
+    pass
+
 #----------------------
-# pthread no python GIL
+# demo hyper c/py with nump
 #----------------------
-cdef
+def gibbs(int N=20000,int thin=500):
+    cdef double x=0
+    cdef double y=0
+    cdef int i, j
+    samples = []
+    for i in range(N):
+        for j in range(thin):
+            x=np.random.gamma(3,1.0/(y*y+4))
+            y=np.random.normal(1.0/(x+1),1.0/np.sqrt(x+1))
+        samples.append((x,y))
+    return samples
+
+#----------------------
+# demo pthread no python GIL
+#----------------------
+

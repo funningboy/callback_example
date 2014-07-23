@@ -21,6 +21,7 @@ void find_cheeses(cheesefunc user_func, void *user_data) {
   }
 }
 
+/* dynamic list */
 int* dynamic_list(int n) {
   int *a = (int*) malloc(n * sizeof(int));
   for(int i = 0; i<n; i++) {

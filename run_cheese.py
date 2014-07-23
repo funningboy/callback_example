@@ -2,12 +2,13 @@
 from pydisplay import PyDisplay
 from pythread import PyThread
 from pyqueue  import pyqueue
+from profile import profile
 import cycheese
 import pycheese
 import pycallback
 import time
 
-#@profile decorator
+@profile
 def demo_callback(cb_typ='CYTHONCB', wait=2, rerun=3):
     """ demo callback as python or cython """
     cbs = {
@@ -27,24 +28,27 @@ def demo_callback(cb_typ='CYTHONCB', wait=2, rerun=3):
             time.sleep(wait)
             [th.on_stop() for th in th_q]
             print "run %d found %d callback items" %(i, len(post['PYDISPLAY'].on_query()))
-            [th.on_restart() for th in th_q]
+            if i < rerun-1:
+                time.sleep(wait)
+                [th.on_restart() for th in th_q]
 
         [th.join(0.5) for th in th_q]
+        post['PYDISPLAY'].on_close()
 
     try:
         run()
     except:
         raise "demo_callback error"
 
-#@
+@profile
 def demo_parallel_loop(jb_typ='CYNOPARALLEL', n=10, rerun=3):
     """ demo parallel via cython parallel or not """
 
     jobs = {
         'CYNOPARALLEL' : cycheese.cysumpar_no_parallel(n),
         'CYONPARALLEL' : cycheese.cysumpar_on_parallel(n),
-#        'PYNOPARALLEL' : pysumpar.pysumpar_no_parallel(n),
-#        'PYONPARALLEL' : pysumpar.pysumpar_on_parallel(n)
+        'PYNOPARALLEL' : cycheese.pysumpar_no_parallel(n),
+        'PYONPARALLEL' : cycheese.pysumpar_on_parallel(n)
         }
 
     def run():
@@ -55,10 +59,17 @@ def demo_parallel_loop(jb_typ='CYNOPARALLEL', n=10, rerun=3):
     except:
         raise "demo_parallel_loop error"
 
+@profile
+def demo_pthread_no_gil():
+    pass
+
+
 def main():
     """ doctest """
+
     demo_callback()
     demo_parallel_loop()
+    demo_pthread_no_gil()
 
 if __name__ == '__main__':
     main()
