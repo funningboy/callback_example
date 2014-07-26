@@ -4,6 +4,7 @@ import timeit
 import logging
 from guppy import hpy
 import re
+import json
 
 reSIZE = re.compile(r"Total size = (\d+) bytes", re.M)
 
@@ -18,9 +19,10 @@ def profile(func): #decorator **kwargs
         retval = func(*args, **kwargs)
         hp = hpy()
         found = reSIZE.findall(str(hp.heap()))
-        logging.info("call func %s", func.__name__)
-        logging.info("  run time %f s", t.timeit())
-        logging.info("  run mem %d bytes", int(found[0]))
+        logging.info("call func %s",    func.__name__)
+        logging.info("  arg %s",        json.dumps(kwargs))
+        logging.info("  run time %f s",     t.timeit())
+        logging.info("  run mem %d bytes",  int(found[0]))
     return wrapper
 
 

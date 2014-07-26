@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#include "pycheesefinder.h"
+#include "cpycheesefinder.h"
 static char *cheeses[] = {
   "cheddar",
   "camembert",
@@ -96,7 +96,7 @@ static PyMethodDef moduleMethods[] = {
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef module = {
   PyModuleDef_HEAD_INIT,
-  "pycheese",     /* name of module */
+  "c_pycheese",     /* name of module */
   NULL,           /* module documentation, may be NULL */
   -1,             /* size of per-interpreter state of the module,
                   or -1 if the module keeps state in global variables. */
@@ -106,9 +106,9 @@ static struct PyModuleDef module = {
 
 PyMODINIT_FUNC
 #if PY_MAJOR_VERSION >= 3
-PyInit_pycheese(void)
+PyInit_cpycheese(void)
 #else
-initpycheese(void)
+initcpycheese(void)
 #endif
 {
   PyObject *m;
@@ -116,7 +116,7 @@ initpycheese(void)
 #if PY_MAJOR_VERSION >= 3
   m = PyModule_Create(&module);
 #else
-  m = Py_InitModule("pycheese", moduleMethods);
+  m = Py_InitModule("cpycheese", moduleMethods);
 #endif
 
   if (m == NULL) {
@@ -125,7 +125,7 @@ initpycheese(void)
 #endif
   }
 
-  error = PyErr_NewException("pycheese.error", NULL, NULL);
+  error = PyErr_NewException("cpycheese.error", NULL, NULL);
   Py_INCREF(error);
   PyModule_AddObject(m, "error", error);
 

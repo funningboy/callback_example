@@ -26,7 +26,7 @@ class PyDisplay(threading.Thread):
         """ do as thread run """
         try:
             while True:
-                if not self._queue.is_work():
+                if self._stop or not self._queue.is_work():
                     time.sleep(wait+0.5)
                     continue
                 frame = self._queue.pop()

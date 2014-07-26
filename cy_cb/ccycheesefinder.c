@@ -2,7 +2,7 @@
  *   An example of a C API that provides a callback mechanism.
  */
 
-#include "cycheesefinder.h"
+#include "ccycheesefinder.h"
 static char *cheeses[] = {
   "cheddar",
   "camembert",

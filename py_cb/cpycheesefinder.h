@@ -10,4 +10,3 @@ static int end = 0;
 static PyThreadState *threadState;
 static PyObject *error;
 
-

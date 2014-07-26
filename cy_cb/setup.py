@@ -5,7 +5,7 @@ from Cython.Build import cythonize
 setup(
   name = 'cycallback',
   ext_modules=cythonize([
-    Extension("cycheese",
-        sources = ["cycheese.pyx", "cycheesefinder.c"]),
+    Extension("ccycheese",
+        sources = ["ccycheese.pyx", "ccycheesefinder.c"]),
     ]),
 )
