@@ -65,6 +65,7 @@ def demo_callback(wait=2, rerun=3):
 
     @profile
     def test(cb_typ):
+        """ test """
         ini(cb_typ)
         run()
         close()
@@ -75,8 +76,8 @@ def demo_callback(wait=2, rerun=3):
         raise "demo_callback error"
 
 
-def demo_parallel_loop(n=100000):
-    """ demo parallel via cython/python parallel or not """
+def demo_parallel_loop(n=10000):
+    """ demo parallel accumulated funcs as cython/python """
 
     jobs = {
         'CYNOPARALLEL' : ccycheese.cysumpar_no_parallel(n),
@@ -87,7 +88,7 @@ def demo_parallel_loop(n=100000):
 
     @profile
     def test(jb_typ):
-        print "run %s " %(jb_typ)
+        print "run %s" %(jb_typ)
         print "accumulate sum is %d" %(jobs[jb_typ])
 
     try:
@@ -96,24 +97,26 @@ def demo_parallel_loop(n=100000):
         raise "demo_parallel_loop error"
 
 
-def demo_pipeline_loop(jb_typ='', rerun=3):
-    """ demo pipeline loop via cython/python pipeline or not """
+def demo_pipeline_loop(n=10000):
+    """ demo pipeline accumulated func as cython/python """
 
-#    jobs = {
-#        'CYNOPIPELINE' : ccycheese.cysumpar_no_pipeline(n),
-#        'CYONPIPELINE' : ccycheese.cysumpar_on_pipeline(n),
-#        'PYNOPIPELINE' : ccycheese.pysumpar_no_pipeline(n),
-#        'PYONPIPELINE' : ccycheese.pysumpar_on_pipeline(n)
-#        }
-#
-#    def test():
-#        pass
-#
-#    try:
-#        test()
-#    except PyError:
-#        raise "demo_pipeline_loop error"
-#
+    jobs = {
+        'CYNOPIPELINE' : ccycheese.cysumpar_no_pipeline(n),
+        'CYONPIPELINE' : ccycheese.cysumpar_on_pipeline(n),
+        'PYNOPIPELINE' : ccycheese.pysumpar_no_pipeline(n),
+        'PYONPIPELINE' : ccycheese.pysumpar_on_pipeline(n)
+        }
+
+    @profile
+    def test():
+        print "run %s" %(jb_typ)
+        print "accumulate sum is %s" %(jobs[jb_typ])
+
+    try:
+        [test(jb_typ=jb) for jb in jobs.keys()]
+    except PyError:
+        raise "demo_pipeline_loop error"
+
 
 @profile
 def demo_pthread_no_gil():
@@ -125,12 +128,11 @@ def demo_pthread_no_gil():
 
 def main():
     """ doctest """
+    #demo_callback()
+    #demo_parallel_loop()
+    demo_pipeline_loop()
+    #demo_pthread_no_gil()
 
-#    demo_callback()
-    demo_parallel_loop()
-#    demo_pipeline_loop()
-
-#    demo_pthread_no_gil()
 
 if __name__ == '__main__':
     main()

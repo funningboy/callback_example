@@ -101,6 +101,50 @@ def pysumpar_on_parallel(n):
     queue.join_thread()
     return tot
 
+
+def cysumpar_no_pipeline(n):
+    """ as cython pipeline loop on """
+    return 0
+
+
+def cysumpar_on_pipeline(n):
+    return 0
+
+
+def pysumpar_no_pipeline(n):
+    tot = 0
+    cdef int* a = dynamic_list(int(n))
+    for i in range(int(n)):
+        tot += a[i]
+    return tot
+
+
+def pysumpar_on_pipeline(n):
+    import multiprocessing
+
+    cdef int* a = dynamic_list(int(n))
+    std_out, std_in = multiprocessing.Pipe()
+    tot = 0
+
+    def loop_1(std_out):
+        for i in range(n):
+            std_out.send(a[i])
+
+    def loop_2(std_in):
+        i = 0
+        while i<=n:
+            i = std_in.recv()
+            tot += i
+
+    procs = [
+            multiprocessing.Process(target=loop_1, args=(std_out,))
+            ]
+    [proc.start() for proc in procs]
+    loop_2(std_in)
+    [proc.join()  for proc in procs]
+    return tot
+
+
 #----------------------
 # demo hyper c/py with nump
 #----------------------
