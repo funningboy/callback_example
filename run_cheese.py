@@ -97,7 +97,7 @@ def demo_parallel_loop(n=10000):
         raise "demo_parallel_loop error"
 
 
-def demo_pipeline_loop(n=10000):
+def demo_pipeline_loop(n=1000):
     """ demo pipeline accumulated func as cython/python """
 
     jobs = {
@@ -108,7 +108,7 @@ def demo_pipeline_loop(n=10000):
         }
 
     @profile
-    def test():
+    def test(jb_typ):
         print "run %s" %(jb_typ)
         print "accumulate sum is %s" %(jobs[jb_typ])
 
@@ -118,7 +118,6 @@ def demo_pipeline_loop(n=10000):
         raise "demo_pipeline_loop error"
 
 
-@profile
 def demo_pthread_no_gil():
     try:
         cpypthread.spawn_non_python_thread(pycallback.wap_on_pthread_callback)
@@ -128,10 +127,11 @@ def demo_pthread_no_gil():
 
 def main():
     """ doctest """
-    #demo_callback()
-    #demo_parallel_loop()
+
+    demo_callback()
+    demo_parallel_loop()
     demo_pipeline_loop()
-    #demo_pthread_no_gil()
+    demo_pthread_no_gil()
 
 
 if __name__ == '__main__':

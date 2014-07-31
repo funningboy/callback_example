@@ -20,7 +20,7 @@ def profile(func): #decorator **kwargs
         hp = hpy()
         found = reSIZE.findall(str(hp.heap()))
         logging.info("call func %s",    func.__name__)
-        logging.info("  arg %s",        json.dumps(kwargs))
+        logging.info("  arg %s",        json.dumps((args, kwargs)))
         logging.info("  run time %f s",     t.timeit())
         logging.info("  run mem %d bytes",  int(found[0]))
     return wrapper

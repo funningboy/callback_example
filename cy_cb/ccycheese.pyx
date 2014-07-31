@@ -104,12 +104,12 @@ def pysumpar_on_parallel(n):
 
 def cysumpar_no_pipeline(n):
     """ as cython pipeline loop on """
-    return 0
-
+    #NotImplementedError
+    pass
 
 def cysumpar_on_pipeline(n):
-    return 0
-
+    #NotImplementedError
+    pass
 
 def pysumpar_no_pipeline(n):
     tot = 0
@@ -130,18 +130,17 @@ def pysumpar_on_pipeline(n):
         for i in range(n):
             std_out.send(a[i])
 
-    def loop_2(std_in):
-        i = 0
-        while i<=n:
+    def loop_2(std_in, tot):
+        for i in range(n):
             i = std_in.recv()
             tot += i
+        return tot
 
-    procs = [
-            multiprocessing.Process(target=loop_1, args=(std_out,))
-            ]
-    [proc.start() for proc in procs]
-    loop_2(std_in)
-    [proc.join()  for proc in procs]
+    proc = multiprocessing.Process(target=loop_1, args=(std_out,))
+
+    proc.start()
+    tot = loop_2(std_in, tot)
+    proc.join()
     return tot
 
 
@@ -162,7 +161,4 @@ def gibbs(int N=20000,int thin=500):
         samples.append((x,y))
     return samples
 
-#----------------------
-# demo pthread no python GIL
-#----------------------
 
