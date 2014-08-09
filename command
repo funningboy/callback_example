@@ -3,6 +3,8 @@ find . -name "*.pyc" -exec rm -rf {} \;
 rm -rf ./cy_cb/build
 rm -rf ./py_cb/build
 rm -rf ./py_nogil/build
+rm -rf *.log
+rm -rf *.db
 
 cd ./cy_cb/
 python setup.py install

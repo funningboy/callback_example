@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import threading
 import time
-
 
 class PyThread(threading.Thread):
     """ as Python threading callback handler """

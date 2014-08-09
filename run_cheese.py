@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from pydisplay import PyDisplay
 from pythread import PyThread
@@ -9,7 +10,6 @@ import cpypthread
 import pycallback
 import time
 from pyerror import PyError
-
 
 def demo_callback(wait=2, rerun=3):
     """ demo callback as python or cython """

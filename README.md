@@ -1,5 +1,6 @@
 Cython/ Python callback c api example
 
+that contains as below
 - thread
 - nogil
 - cython parallel

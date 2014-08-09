@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from pyqueue import pyqueue
 import time
