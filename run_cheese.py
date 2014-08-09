@@ -97,7 +97,7 @@ def demo_parallel_loop(n=10000):
         raise "demo_parallel_loop error"
 
 
-def demo_pipeline_loop(n=1000):
+def demo_pipeline_loop(n=10000):
     """ demo pipeline accumulated func as cython/python """
 
     jobs = {

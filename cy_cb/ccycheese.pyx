@@ -104,11 +104,11 @@ def pysumpar_on_parallel(n):
 
 def cysumpar_no_pipeline(n):
     """ as cython pipeline loop on """
-    #NotImplementedError
+    NotImplementedError()
     pass
 
 def cysumpar_on_pipeline(n):
-    #NotImplementedError
+    NotImplementedError()
     pass
 
 def pysumpar_no_pipeline(n):
